@@ -7,12 +7,9 @@ using a built in package called the
 Test Anything Protocol (TAP)
 =cut
 #!/usr/bin/perl -I/DeployApp/src
-use strict;
-use warnings;
 use Test::Simple tests => 6; #we can use Test::More to get more descriptive print outs of tests
 use lib "DeployApp/src/";
 
-require 'hWorld.pl';
 
 #playing with hashes, learning data structures of Perl
 my %testHarness = (
