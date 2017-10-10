@@ -1,0 +1,1 @@
+Simple test of GitHub Slack App commit reporting.
