@@ -132,6 +132,11 @@ def get_args():
                         action='store',
                         help='Name of Cluster to create VM in')
 
+    parser.add_argument('-v', '--vm',
+                        required=True,
+                        action='store',
+                        help='Name of VM to create')
+
     args = parser.parse_args()
 
     return cli.prompt_for_password(args)
@@ -152,7 +157,7 @@ def main():
     hosts = dc.hostFolder.childEntity
     resource_pool = hosts[0].resourcePool
 
-    vc.add_vm('TESTVM')
+    vc.add_vm(args.vm)
     return 0
 
 
