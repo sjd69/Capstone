@@ -7,7 +7,6 @@ import subprocess
 from tools import tasks
 import tools.cli as cli
 
-
 class Vcenter(object):
     def get_obj(self, type, name):
         obj = None
@@ -50,7 +49,7 @@ class Vcenter(object):
         host = self.get_obj([vim.HostSystem], name)
 
         if host is not None:
-            print("Host %s already exists. Using existing host.")
+            print("Host %s already exists. Using existing host." % host)
             return host
         else:
             cls = self.get_obj([vim.ClusterComputeResource], cluster)
