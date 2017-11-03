@@ -1,4 +1,5 @@
 
 
-def hello( str ):
-    return 'Hello World: '+str;
+class Deploy:
+	def hello( str ):
+		return 'Hello World: '+str;
