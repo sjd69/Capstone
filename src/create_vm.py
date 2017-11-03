@@ -59,8 +59,8 @@ class Vcenter(object):
                 raise ValueError(error)
 
             try:
-                host_config = vim.host.ConnectSpec(hostName=name, userName=user, sslThumbprint=ssl_thumb, password = pwd,
-                                              force=True)
+                host_config = vim.host.ConnectSpec(hostName=name, userName=user, sslThumbprint=ssl_thumb, password=pwd,
+                                                   force=True)
                 task = cls.AddHost(spec=host_config, asConnected=True)
 
             except vmodl.MethodFault as error:
@@ -99,8 +99,54 @@ class Vcenter(object):
                                        location=relocate_spec, customization=None, config=config)
 
         clone = template_vm.Clone(name=name, folder=template_vm.parent, spec=cloned_spec)
-        print("Created VM %s" % name)
 
+        print("Created VM %s" % name)
+        return clone
+
+    def find_free_ide_controller(self, vm):
+        for dev in vm.config.hardware.device:
+            if isinstance(dev, vim.vm.device.VirtualIDEController):
+                # If there are less than 2 devices attached, we can use it.
+                if len(dev.device) < 2:
+                    return dev
+        return None
+
+    def attach_iso(self, iso_path):
+        testvm = self.get_obj([vim.VirtualMachine], 'testvm')
+
+        connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+        connectable.allowGuestControl = True
+        connectable.startConnected = True
+
+        cdrom = vim.vm.device.VirtualCdrom()
+        cdrom.controllerKey = self.find_free_ide_controller(testvm).key
+        cdrom.key = -1
+        cdrom.connectable = connectable
+        cdrom.backing = vim.vm.device.VirtualCdrom.IsoBackingInfo(fileName=iso_path)
+        op = vim.vm.device.VirtualDeviceSpec.Operation
+        devSpec = vim.vm.device.VirtualDeviceSpec()
+        devSpec.operation = op.add
+        devSpec.device = cdrom
+
+
+
+
+        print("Attaching iso to CD drive of %s" % testvm)
+        cdspec = None
+
+
+        vmconf = vim.vm.ConfigSpec()
+        vmconf.deviceChange = [devSpec]
+        print("Giving first priority for CDrom Device in boot order")
+        vmconf.bootOptions = vim.vm.BootOptions(bootOrder=[vim.vm.BootOptions.BootableCdromDevice()])
+
+        task = testvm.ReconfigVM_Task(vmconf)
+        tasks.wait_for_tasks(self.service_instance, [task])
+
+        print("Successfully changed boot order priority and attached iso to the CD drive of VM %s" % testvm)
+
+        print("Power On the VM to boot from iso")
+        testvm.PowerOnVM_Task()
 
     def vcenter_connect(self, args):
         self.service_instance = connect.SmartConnect(host=args.host,
@@ -137,6 +183,11 @@ def get_args():
                         action='store',
                         help='Name of VM to create')
 
+    parser.add_argument('-i', '--iso',
+                        required=True,
+                        action='store',
+                        help='Path of iso (Absolute)')
+
     args = parser.parse_args()
 
     return cli.prompt_for_password(args)
@@ -157,7 +208,8 @@ def main():
     hosts = dc.hostFolder.childEntity
     resource_pool = hosts[0].resourcePool
 
-    vc.add_vm(args.vm)
+    vm = vc.add_vm(args.vm)
+    vc.attach_iso(args.iso)
     return 0
 
 
