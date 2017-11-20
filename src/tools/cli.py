@@ -15,6 +15,8 @@
 
 """
 This module implements simple helper functions for python samples
+
+Modified to include arguments for VCSim tools
 """
 import argparse
 import getpass
@@ -36,7 +38,7 @@ def build_arg_parser():
         description='Standard Arguments for talking to vCenter')
 
     # because -h is reserved for 'help' we use -s for service
-    parser.add_argument('-s', '--host',
+    parser.add_argument('-s', '--server',
                         required=True,
                         action='store',
                         help='vSphere service to connect to')
@@ -51,17 +53,63 @@ def build_arg_parser():
     parser.add_argument('-u', '--user',
                         required=True,
                         action='store',
-                        help='User name to use when connecting to host')
+                        help='User name for server')
 
     parser.add_argument('-p', '--password',
-                        required=False,
+                        required=True,
                         action='store',
-                        help='Password to use when connecting to host')
+                        help='Password for server')
 
-    parser.add_argument('-S', '--disable_ssl_verification',
-                        required=False,
-                        action='store_true',
-                        help='Disable ssl host certificate verification')
+    # # -s, -S, and -h are already taken, so using -t for the host IP
+    # parser.add_argument('-t', '--host',
+    #                     required=False,
+    #                     action='store',
+    #                     help='Host IP')
+    #
+    # parser.add_argument('-U', '--user',
+    #                     required=True,
+    #                     action='store',
+    #                     help='User name for host')
+    #
+    # parser.add_argument('-P', '--password',
+    #                     required=True,
+    #                     action='store',
+    #                     help='Password for host')
+    #
+    # parser.add_argument('-S', '--disable_ssl_verification',
+    #                     required=False,
+    #                     action='store_true',
+    #                     help='Disable ssl host certificate verification')
+    #
+    # parser.add_argument('-d', '--datacenter',
+    #                     required=False,
+    #                     action='store',
+    #                     help='Name of Datacenter')
+    #
+    # parser.add_argument('-c', '--cluster',
+    #                     required=False,
+    #                     action='store',
+    #                     help='Name of Cluster')
+    #
+    # parser.add_argument('-v', '--vm',
+    #                     required=False,
+    #                     action='store',
+    #                     help='Name of VM')
+    #
+    # parser.add_argument('-i', '--iso',
+    #                     required=False,
+    #                     action='store',
+    #                     help='Path of iso (Absolute)')
+    #
+    # parser.add_argument('-j', '--uuid',
+    #                     required=False,
+    #                     action='store',
+    #                     help='UUID of VM')
+    #
+    # parser.add_argument('-i', '--ip',
+    #                     required=False,
+    #                     action='store',
+    #                     help='DNS IP of VM')
 
     return parser
 

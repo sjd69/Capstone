@@ -1,6 +1,7 @@
+from pyVmomi import vim
+
 import connect
 import tools.cli as cli
-from pyVmomi import vim
 from tools import tasks
 
 
@@ -18,7 +19,7 @@ def get_args():
     parser.add_argument('-i', '--ip',
                         required=False,
                         action='store',
-                        help='IP of VM to remove')
+                        help='DNS IP of VM to remove')
 
     parser.add_argument('-n', '--name',
                         required=False,
