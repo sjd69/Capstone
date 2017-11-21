@@ -1,5 +1,5 @@
 {
-	"text": "TESTING, <@U751W3GQJ>",
-	"username": "CI Testbot",
-	"channel":"#testing"
+	"text":"The report from a new set of tests is available: <hurricos.zapto.org/COMMIT_HASH.txt>",
+	"username":"CI Tester Bot",
+	"channel":"@C7HCFHA87"
 }
