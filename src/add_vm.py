@@ -2,10 +2,10 @@ from pyVmomi import vim
 
 from cluster import create_cluster
 from color import color
-from connect import connect_no_ssl
 from datacenter import create_datacenter
 from get_obj import get_obj
 from tools import cli as cli
+from tools.connect import connect_no_ssl
 
 
 def get_args():
@@ -55,7 +55,7 @@ def create_vm(service_instance, vm_name, cluster, datacenter, template_name):
 
     clone = template_vm.Clone(name=vm_name, folder=datacenter.vmFolder, spec=cloned_spec)
 
-    print("Created VM %s" % vm_name)
+    print("Created VM" + color.RED + " {0} ".format(vm_name) + color.END)
     return clone
 
 

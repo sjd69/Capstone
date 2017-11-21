@@ -1,10 +1,10 @@
 from pyVmomi import vim
 
 from color import color
-from connect import connect_no_ssl
 from datacenter import create_datacenter
 from get_obj import get_obj
 from tools import cli as cli
+from tools.connect import connect_no_ssl
 
 
 def get_args():
