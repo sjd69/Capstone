@@ -1,4 +1,3 @@
-from pyVim import connect
 from pyVmomi import vmodl
 from pyVmomi import vim
 from pyVmomi import vmodl
@@ -6,8 +5,14 @@ import atexit
 import subprocess
 from tools import tasks
 import tools.cli as cli
+from connect import connect_no_ssl
+
 
 class Vcenter(object):
+    def __init__(self):
+        self.service_instance = None
+        self.content = None
+
     def get_obj(self, type, name):
         obj = None
         container = self.content.viewManager.CreateContainerView(self.content.rootFolder, type, True)
@@ -127,12 +132,8 @@ class Vcenter(object):
         devSpec.operation = op.add
         devSpec.device = cdrom
 
-
-
-
         print("Attaching iso to CD drive of %s" % testvm)
         cdspec = None
-
 
         vmconf = vim.vm.ConfigSpec()
         vmconf.deviceChange = [devSpec]
@@ -148,18 +149,12 @@ class Vcenter(object):
         testvm.PowerOnVM_Task()
 
     def vcenter_connect(self, args):
-        self.service_instance = connect.SmartConnect(host=args.host,
-                                                     user=args.user,
-                                                     pwd=args.password,
-                                                     port=int(args.port))
-        if not self.service_instance:
-            print("Could not connect to the specified host using specified "
-                  "username and password")
-            return -1
+
+        self.service_instance = connect_no_ssl(host=args.host,
+                                               user=args.user,
+                                               pwd=args.password,
+                                               port=int(args.port))
         self.content = self.service_instance.RetrieveContent()
-
-        atexit.register(connect.Disconnect, self.service_instance)
-
 
 def get_args():
     """
