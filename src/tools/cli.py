@@ -60,57 +60,6 @@ def build_arg_parser():
                         action='store',
                         help='Password for server')
 
-    # # -s, -S, and -h are already taken, so using -t for the host IP
-    # parser.add_argument('-t', '--host',
-    #                     required=False,
-    #                     action='store',
-    #                     help='Host IP')
-    #
-    # parser.add_argument('-U', '--user',
-    #                     required=True,
-    #                     action='store',
-    #                     help='User name for host')
-    #
-    # parser.add_argument('-P', '--password',
-    #                     required=True,
-    #                     action='store',
-    #                     help='Password for host')
-    #
-    # parser.add_argument('-S', '--disable_ssl_verification',
-    #                     required=False,
-    #                     action='store_true',
-    #                     help='Disable ssl host certificate verification')
-    #
-    # parser.add_argument('-d', '--datacenter',
-    #                     required=False,
-    #                     action='store',
-    #                     help='Name of Datacenter')
-    #
-    # parser.add_argument('-c', '--cluster',
-    #                     required=False,
-    #                     action='store',
-    #                     help='Name of Cluster')
-    #
-    # parser.add_argument('-v', '--vm',
-    #                     required=False,
-    #                     action='store',
-    #                     help='Name of VM')
-    #
-    # parser.add_argument('-i', '--iso',
-    #                     required=False,
-    #                     action='store',
-    #                     help='Path of iso (Absolute)')
-    #
-    # parser.add_argument('-j', '--uuid',
-    #                     required=False,
-    #                     action='store',
-    #                     help='UUID of VM')
-    #
-    # parser.add_argument('-i', '--ip',
-    #                     required=False,
-    #                     action='store',
-    #                     help='DNS IP of VM')
-
     return parser
 
 

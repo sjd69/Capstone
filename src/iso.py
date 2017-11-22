@@ -5,6 +5,7 @@ from get_obj import get_obj
 from tools import cli, tasks
 from tools.connect import connect_no_ssl
 from tools.ide import find_free_ide_controller
+from tools.power import power_off_vm
 
 
 def get_args():
@@ -21,7 +22,7 @@ def get_args():
     parser.add_argument('-i', '--iso',
                         required=True,
                         action='store',
-                        help='Path of iso (Absolute)')
+                        help='Datastore path of ISO')
 
     args = parser.parse_args()
 
@@ -50,6 +51,11 @@ def attach_iso(service_instance, vm, iso_path):
     vmconf.deviceChange = [devSpec]
     print("Giving first priority for CDrom Device in boot order")
     vmconf.bootOptions = vim.vm.BootOptions(bootOrder=[vim.vm.BootOptions.BootableCdromDevice()])
+
+    if format(vm.runtime.powerState) == "poweredOn":
+        print("Attempting to reboot" + color.RED + " {0}".format(vm.name) + color.END)
+        task = power_off_vm(service_instance, vm)
+        print("{0}".format(task.info.state))
 
     task = vm.ReconfigVM_Task(vmconf)
     tasks.wait_for_tasks(service_instance, [task])
