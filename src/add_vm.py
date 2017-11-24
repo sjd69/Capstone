@@ -7,7 +7,6 @@ from get_obj import get_obj
 from tools import cli as cli
 from tools.connect import connect_no_ssl
 
-
 def get_args():
     """
     Use the tools.cli methods and then add a few more arguments.
@@ -29,7 +28,12 @@ def get_args():
     parser.add_argument('-v', '--vm',
                         required=True,
                         action='store',
-                        help='Name of VM')
+                        help='Name/basename of VM')
+
+    parser.add_argument('-n', '--number',
+                        required=False,
+                        action='store',
+                        help='Number of VMs to create')
 
     args = parser.parse_args()
 
@@ -65,17 +69,24 @@ def main():
                                       user=args.user,
                                       pwd=args.password,
                                       port=int(args.port))
-
+    
     # Run through checks to see if infrastructure exists. Could just get_obj cluster though as well.
     datacenter = create_datacenter(service_instance, args.datacenter)
     cluster = create_cluster(service_instance, args.cluster, datacenter)
-    if args.port == 443:
-        vm = create_vm(service_instance, args.vm, cluster, datacenter, "Template_VM")
+
+    if args.number:
+        for i in range(0, int(args.number)):
+            if args.port == 443:
+                create_vm(service_instance, args.vm + "_" + str(i), cluster, datacenter, "Template_VM")
+            else:
+                create_vm(service_instance, args.vm + "_" + str(i), cluster, datacenter, "DC0_H0_VM0")
     else:
-        vm = create_vm(service_instance, args.vm, cluster, datacenter, "DC0_H0_VM0")
+        if args.port == 443:
+            vm = create_vm(service_instance, args.vm, cluster, datacenter, "Template_VM")
+        else:
+            vm = create_vm(service_instance, args.vm, cluster, datacenter, "DC0_H0_VM0")
 
     return 0
-
 
 if __name__ == "__main__":
     main()
