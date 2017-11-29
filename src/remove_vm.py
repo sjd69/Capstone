@@ -1,7 +1,9 @@
-import connect
-import tools.cli as cli
 from pyVmomi import vim
-from tools import tasks
+
+import tools.cli as cli
+from get_obj import get_obj
+from tools import tasks, connect
+from tools.power import power_off_vm
 
 
 def get_args():
@@ -18,7 +20,7 @@ def get_args():
     parser.add_argument('-i', '--ip',
                         required=False,
                         action='store',
-                        help='IP of VM to remove')
+                        help='DNS IP of VM to remove')
 
     parser.add_argument('-n', '--name',
                         required=False,
@@ -28,23 +30,6 @@ def get_args():
     args = parser.parse_args()
 
     return cli.prompt_for_password(args)
-
-def get_obj(content, type, name):
-    """Create container view and search for object in it"""
-    obj = None
-    container = content.viewManager.CreateContainerView(
-        content.rootFolder, type, True)
-    for c in container.view:
-        if name:
-            if c.name == name:
-                obj = c
-                break
-        else:
-            obj = c
-            break
-
-    container.Destroy()
-    return obj
 
 
 def main():
@@ -72,8 +57,7 @@ def main():
     print("The current powerState is: {0}".format(virtual_machine.runtime.powerState))
     if format(virtual_machine.runtime.powerState) == "poweredOn":
         print("Attempting to power off {0}".format(virtual_machine.name))
-        task = virtual_machine.PowerOffVM_Task()
-        tasks.wait_for_tasks(service_instance, [task])
+        task = power_off_vm(service_instance, virtual_machine)
         print("{0}".format(task.info.state))
 
     print("Destroying VM")

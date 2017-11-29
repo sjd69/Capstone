@@ -15,6 +15,8 @@
 
 """
 This module implements simple helper functions for python samples
+
+Modified to include arguments for VCSim tools
 """
 import argparse
 import getpass
@@ -36,7 +38,7 @@ def build_arg_parser():
         description='Standard Arguments for talking to vCenter')
 
     # because -h is reserved for 'help' we use -s for service
-    parser.add_argument('-s', '--host',
+    parser.add_argument('-s', '--server',
                         required=True,
                         action='store',
                         help='vSphere service to connect to')
@@ -51,17 +53,12 @@ def build_arg_parser():
     parser.add_argument('-u', '--user',
                         required=True,
                         action='store',
-                        help='User name to use when connecting to host')
+                        help='User name for server')
 
     parser.add_argument('-p', '--password',
-                        required=False,
+                        required=True,
                         action='store',
-                        help='Password to use when connecting to host')
-
-    parser.add_argument('-S', '--disable_ssl_verification',
-                        required=False,
-                        action='store_true',
-                        help='Disable ssl host certificate verification')
+                        help='Password for server')
 
     return parser
 
