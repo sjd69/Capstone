@@ -1,9 +1,9 @@
 from pyVmomi import vim
 
-from color import color
-from get_obj import get_obj
 from tools import cli as cli
+from tools.color import color
 from tools.connect import connect_no_ssl
+from tools.get_obj import get_obj
 
 
 def get_args():
@@ -29,7 +29,7 @@ def create_datacenter(service_instance, dc_name, folder=None):
     :param folder: Folder object to create DC in. If None it will default to rootFolder
     :param dc_name: Name for the new Datacenter.
     :param service_instance: ServiceInstance connection to a given vCenter
-    :return:
+    :return: Either the existing datacenter with given name, or a newly created datacenter
     """
     datacenter = get_obj(service_instance.RetrieveContent(), [vim.Datacenter], dc_name)
 
