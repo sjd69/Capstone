@@ -28,7 +28,7 @@ def create_datacenter(service_instance, dc_name, folder=None):
     """Create a new datacenter with given name
     :param folder: Folder object to create DC in. If None it will default to rootFolder
     :param dc_name: Name for the new Datacenter.
-    :param service_instance: ServiceInstance connection to a given vCenter
+    :param service_instance: root service instance of a given server
     :return: Either the existing datacenter with given name, or a newly created datacenter
     """
     datacenter = get_obj(service_instance.RetrieveContent(), [vim.Datacenter], dc_name)
@@ -42,9 +42,9 @@ def create_datacenter(service_instance, dc_name, folder=None):
         if folder is None:
             folder = service_instance.content.rootFolder
         if isinstance(folder, vim.Folder):
-            print("Creating datacenter " + color.RED + "{0}".format(dc_name) + color.END +
-                  " in folder " + color.RED + "{0}".format(folder.name) + color.END)
             datacenter = folder.CreateDatacenter(name=dc_name)
+            print("Created datacenter " + color.RED + "{0}".format(dc_name) + color.END +
+                  " in folder " + color.RED + "{0}".format(folder.name) + color.END)
         return datacenter
 
 

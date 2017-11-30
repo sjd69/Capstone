@@ -43,12 +43,14 @@ def create_cluster(service_instance, cls_name, datacenter):
         print("Cluster " + color.RED + "{0}".format(cls_name + color.END + " already exists."))
         return cluster
     else:
-        print("Creating cluster " + color.RED + "{0}".format(cls_name) + color.END +
-              " in datacenter " + color.RED + "{0}".format(datacenter.name) + color.END)
+        if len(cls_name) > 79:
+            raise ValueError("Cluster name must be under 80 characters.")
         cluster_config = vim.cluster.ConfigSpecEx()
 
         host = datacenter.hostFolder
         cluster = host.CreateClusterEx(name=cls_name, spec=cluster_config)
+        print("Created cluster " + color.RED + "{0}".format(cls_name) + color.END +
+              " in datacenter " + color.RED + "{0}".format(datacenter.name) + color.END)
         return cluster
 
 

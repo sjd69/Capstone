@@ -89,6 +89,9 @@ def main():
         print("ERROR: Cluster" + color.RED + " {0} ".format(args.cluster) + color.END + "doesn't exist.")
         return -1
 
+    if len(args.vm) > 79:
+        raise ValueError("Cluster name must be under 80 characters.")
+
     if args.number:
         for i in range(0, int(args.number)):
             if args.port == 443:
