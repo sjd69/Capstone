@@ -1,10 +1,24 @@
 #hello
-from pyVim import connect
+#from pyVim import connect
+from tools.connect import connect_no_ssl
 from pyVmomi import vim
 from pyVmomi import vmodl
+from tools import cli as cli
 import atexit
-from create_vm import Vcenter
+#from create_vm import Vcenter
 
+def get_args():
+	parser = cli.build_arg_parser()
+						
+	parser.add_argument('-q','--host',
+						required=True,
+						action='store',
+						help='name of host to remove')
+						
+	args = parser.parse_args()
+	
+	return args
+	
 def remove_host(host):
 	#TODO: check to see if cluster exists
 	#if cluster exists, check for existing host by specified name
@@ -27,12 +41,17 @@ def remove_host(host):
 	print("ESXi Host '%s' removed from the vC inventory!" % host_name)
 
 def main():
-		service_instance = connect.SmartConnectNoSSL(host='127.0.0.1',user='user',pwd='pass',port=8989)
+	args = get_args()
+	service_instance = connect_no_ssl(host=args.server,
+									  user=args.user,
+									  pwd=args.password,
+									  port=int(args.port))
 		
-		container = service_instance.RetrieveContent()
-		host_view = container.viewManager.CreateContainerView(container.rootFolder,[vim.HostSystem],True)
+	container = service_instance.RetrieveContent()
+	host_view = container.viewManager.CreateContainerView(container.rootFolder,[vim.HostSystem],True)
 		
-		for host in host_view.view:
+	for host in host_view.view:
+		if host.name == args.host:
 			remove_host(host)
 			break
 			
