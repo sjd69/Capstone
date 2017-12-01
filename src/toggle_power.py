@@ -1,9 +1,10 @@
 from pyVmomi import vim
 
 import tools.cli as cli
-from tools import tasks, connect
+from tools import connect
+from tools.color import color
 from tools.get_obj import get_obj
-from tools.power import power_off_vm
+from tools.power import power_off_vm, power_on_vm
 
 
 def get_args():
@@ -36,6 +37,10 @@ def get_args():
 
 
 def main():
+    """
+    Toggles given vm's power state
+    :return: 0 on success
+    """
     args = get_args()
 
     service_instance = connect.connect_no_ssl(args.server, args.user, args.password, args.port)
@@ -57,17 +62,16 @@ def main():
                          .format(args.vm, args.uuid, args.ip))
 
     print("Found: {0}".format(virtual_machine.name))
-    print("The current powerState is: {0}".format(virtual_machine.runtime.powerState))
+    print("The current powerState is:" + color.RED + " {0} ".format(virtual_machine.runtime.powerState) + color.END)
     if format(virtual_machine.runtime.powerState) == "poweredOn":
-        print("Attempting to power off {0}".format(virtual_machine.name))
+        print("Attempting to power off" + color.RED + " {0} ".format(virtual_machine.name) + color.END)
         task = power_off_vm(service_instance, virtual_machine)
         print("{0}".format(task.info.state))
 
-    print("Destroying VM")
-    task = virtual_machine.Destroy_Task()
-    tasks.wait_for_tasks(service_instance, [task])
-
-    print("{0}".format(task.info.state))
+    elif format(virtual_machine.runtime.powerState) == "poweredOff":
+        print("Attempting to power on" + color.RED + " {0} ".format(virtual_machine.name) + color.END)
+        task = power_on_vm(service_instance, virtual_machine)
+        print("{0}".format(task.info.state))
 
     return 0
 

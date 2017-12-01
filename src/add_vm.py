@@ -1,11 +1,10 @@
 from pyVmomi import vim
 
-from cluster import create_cluster
-from color import color
-from datacenter import create_datacenter
-from get_obj import get_obj
 from tools import cli as cli
+from tools.color import color
 from tools.connect import connect_no_ssl
+from tools.get_obj import get_obj
+
 
 def get_args():
     """
@@ -41,22 +40,26 @@ def get_args():
 
 
 def create_vm(service_instance, vm_name, cluster, datacenter, template_name):
-    """Create a new datacenter with given name
-    :param template_name: Name of the template VM.
+    """Create a new VM with a given name within given datacenter and cluster. VM is templated from given template vm
+    :param str template_name: Name of the template VM.
     :param datacenter: Datacenter object that contains cluster.
     :param cluster: Cluster object to create VM in.
     :param vm_name: Name for the new VM.
     :param service_instance: ServiceInstance connection to a given vCenter
-    :return:
+    :return: The newly created VM task
     """
+
+    # Search the service instance content for the template VM
     template_vm = get_obj(service_instance.RetrieveContent(), [vim.VirtualMachine], template_name)
+
+    # Set the resource pool to the cluster's resource pool as well as setup the config.
     resource_pool = cluster.resourcePool
     config = vim.vm.ConfigSpec()
-
     relocate_spec = vim.vm.RelocateSpec(pool=resource_pool)
     cloned_spec = vim.vm.CloneSpec(powerOn=True, template=False,
                                    location=relocate_spec, customization=None, config=config)
 
+    # Clone the template VM into the given datacenter's VM folder using the spec we just created.
     clone = template_vm.Clone(name=vm_name, folder=datacenter.vmFolder, spec=cloned_spec)
 
     print("Created VM" + color.RED + " {0} ".format(vm_name) + color.END)
@@ -69,10 +72,25 @@ def main():
                                       user=args.user,
                                       pwd=args.password,
                                       port=int(args.port))
-    
-    # Run through checks to see if infrastructure exists. Could just get_obj cluster though as well.
-    datacenter = create_datacenter(service_instance, args.datacenter)
-    cluster = create_cluster(service_instance, args.cluster, datacenter)
+
+    # Get the requested datacenter and cluster
+    datacenter = get_obj(service_instance.RetrieveContent(), [vim.Datacenter], args.datacenter)
+    cluster = get_obj(service_instance.RetrieveContent(), [vim.ClusterComputeResource], args.cluster)
+    # datacenter = create_datacenter(service_instance, args.datacenter)
+    # cluster = create_cluster(service_instance, args.cluster, datacenter)
+
+    # Datacenter doesn't exist. Can't continue.
+    if not datacenter:
+        print("ERROR: Datacenter" + color.RED + " {0} ".format(args.datacenter) + color.END + "doesn't exist.")
+        return -1
+
+    # Cluster doesn't exist. Can't continue.
+    if not cluster:
+        print("ERROR: Cluster" + color.RED + " {0} ".format(args.cluster) + color.END + "doesn't exist.")
+        return -1
+
+    if len(args.vm) > 79:
+        raise ValueError("Cluster name must be under 80 characters.")
 
     if args.number:
         for i in range(0, int(args.number)):
@@ -87,6 +105,7 @@ def main():
             vm = create_vm(service_instance, args.vm, cluster, datacenter, "DC0_H0_VM0")
 
     return 0
+
 
 if __name__ == "__main__":
     main()

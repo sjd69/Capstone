@@ -1,10 +1,9 @@
 from pyVmomi import vim
 
-from color import color
-from datacenter import create_datacenter
-from get_obj import get_obj
 from tools import cli as cli
+from tools.color import color
 from tools.connect import connect_no_ssl
+from tools.get_obj import get_obj
 
 
 def get_args():
@@ -34,21 +33,24 @@ def create_cluster(service_instance, cls_name, datacenter):
     """Create a new datacenter with given name
     :param datacenter: Datacenter object to create cluster in.
     :param cls_name: Name for the new Cluster.
-    :param service_instance: ServiceInstance connection to a given vCenter
-    :return:
+    :param service_instance: Root service instance of the connected server.
+    :return: The newly created cluster
     """
     cluster = get_obj(service_instance.RetrieveContent(), [vim.ClusterComputeResource], cls_name)
 
+    # Cluster already exists.
     if cluster is not None:
         print("Cluster " + color.RED + "{0}".format(cls_name + color.END + " already exists."))
         return cluster
     else:
-        print("Creating cluster " + color.RED + "{0}".format(cls_name) + color.END +
-              " in datacenter " + color.RED + "{0}".format(datacenter.name) + color.END)
+        if len(cls_name) > 79:
+            raise ValueError("Cluster name must be under 80 characters.")
         cluster_config = vim.cluster.ConfigSpecEx()
 
         host = datacenter.hostFolder
         cluster = host.CreateClusterEx(name=cls_name, spec=cluster_config)
+        print("Created cluster " + color.RED + "{0}".format(cls_name) + color.END +
+              " in datacenter " + color.RED + "{0}".format(datacenter.name) + color.END)
         return cluster
 
 
@@ -58,7 +60,14 @@ def main():
                                       user=args.user,
                                       pwd=args.password,
                                       port=int(args.port))
-    datacenter = create_datacenter(service_instance, args.datacenter)
+
+    datacenter = get_obj(service_instance.RetrieveContent(), [vim.Datacenter], args.datacenter)
+
+    if not datacenter:
+        if not datacenter:
+            print("ERROR: Datacenter" + color.RED + " {0} ".format(args.datacenter) + color.END + "doesn't exist.")
+            return -1
+
     cluster = create_cluster(service_instance, args.cluster, datacenter)
 
     return 0
