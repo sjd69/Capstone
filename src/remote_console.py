@@ -25,7 +25,8 @@ def get_args():
 
 def main():
     """
-
+    Doesn't currently work. Could be due to the firewall. Not documented much at all from vSphere 6.0 onwards, and
+    older methods no longer work.
     :return:
     """
     args = get_args()
