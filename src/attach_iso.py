@@ -16,15 +16,21 @@ def get_args():
     """
     parser = cli.build_arg_parser()
 
+
     parser.add_argument('-v', '--vm',
                         required=True,
                         action='store',
                         help='Name of VM')
 
+    parser.add_argument('-d', '--datastore',
+                        required=True,
+                        action='store',
+                        help='Datastore the ISO resides in')
+
     parser.add_argument('-i', '--iso',
                         required=True,
                         action='store',
-                        help='Datastore path of ISO')
+                        help='Path within the Datastore of ISO')
 
     args = parser.parse_args()
 
@@ -65,7 +71,7 @@ def attach_iso(service_instance, vm, iso_path):
     # Reconfigure the boot priority on the VM to boot from the CD-ROM.
     vm_conf = vim.vm.ConfigSpec()
     vm_conf.deviceChange = [dev_spec]
-    print("Giving first priority for CDrom Device in boot order")
+    print("Giving first priority for CDRom Device in boot order")
     vm_conf.bootOptions = vim.vm.BootOptions(bootOrder=[vim.vm.BootOptions.BootableCdromDevice()])
 
     if format(vm.runtime.powerState) == "poweredOn":
@@ -88,7 +94,10 @@ def main():
 
     vm = get_obj(service_instance.RetrieveContent(), [vim.VirtualMachine], args.vm)
 
-    attach_iso(service_instance, vm, args.iso)
+    # Setup the datastore path for the iso
+    iso_path = "[" + args.datastore + "] " + args.iso
+
+    attach_iso(service_instance, vm, iso_path)
 
     return 0
 
