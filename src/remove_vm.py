@@ -43,9 +43,7 @@ def main():
     virtual_machine = None
 
     if args.uuid:
-        virtual_machine = service_instance.content.searchIndex.FindByUuid(None, args.uuid,
-                                                                          True,
-                                                                          False)
+        virtual_machine = service_instance.content.searchIndex.FindByUuid(None, args.uuid, True, False)
     elif args.vm:
         virtual_machine = get_obj(service_instance.content, [vim.VirtualMachine], args.vm)
     elif args.ip:
